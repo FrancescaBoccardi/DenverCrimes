@@ -5,8 +5,11 @@
 package it.polito.tdp.crimes;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.Adiacenza;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,16 +28,16 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxCategoria"
-    private ComboBox<?> boxCategoria; // Value injected by FXMLLoader
+    private ComboBox<String> boxCategoria; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxMese"
-    private ComboBox<?> boxMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAnalisi"
     private Button btnAnalisi; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxArco"
-    private ComboBox<?> boxArco; // Value injected by FXMLLoader
+    private ComboBox<Adiacenza> boxArco; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnPercorso"
     private Button btnPercorso; // Value injected by FXMLLoader
@@ -44,11 +47,40 @@ public class FXMLController {
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
-
+    	txtResult.clear();
+    	
+    	String sorgente = boxArco.getValue().getV1();
+    	String destinazione = boxArco.getValue().getV2();
+    	
+    	if(sorgente==null || destinazione==null) {
+    		txtResult.appendText("Seleziona un arco");
+    	}
+    	
+    	model.trovaPercorso(sorgente, destinazione);
+    	
+    	for(String s : model.getPercorsoMigliore()) {
+    		txtResult.appendText(s+"\n");
+    	}
+    	
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	
+    	String categoria = this.boxCategoria.getValue();
+    	Integer mese = this.boxMese.getValue();
+    	
+    	if(categoria==null || mese==null) {
+    		txtResult.appendText("Seleziona i valori di input");
+    	}
+    	
+    	model.creaGrafo(categoria,mese);
+    	
+    	for(Adiacenza a : this.model.getArchi()) {
+    		txtResult.appendText(a.toString());
+    	}
+    	
+    	this.boxArco.getItems().addAll(model.getArchi());
 
     }
 
@@ -65,5 +97,15 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	
+    	this.boxCategoria.getItems().addAll(model.getCategorie());
+    	
+    	List<Integer> mesi = new LinkedList<>();
+    	
+    	for(int i=1;i<=12;i++) {
+    		mesi.add(i);
+    	}
+    	
+    	this.boxMese.getItems().addAll(mesi);
     }
 }
